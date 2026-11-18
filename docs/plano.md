@@ -4,11 +4,19 @@ Plano do kit
 2. Partes: main (recebe, chama, imprime) · valida (o input) ·
    omdb (chama a API, devolve dados ou falha) · config (lê a chave).
 3. Erros (nunca imprimo a URL: ela tem a chave):
-   sem título ou vazio → como usar · sem chave no .env → avisa e diz onde pôr ·
-   chave errada (401) → avisa · sem internet (sem resposta) → "sem conexão" ·
-   API com erro (5xx) → avisa, com o código · não existe → "não encontrado" ·
-   campo "N/A" → "não informado".
+   · sem título ou vazio → como usar 
+   · sem chave no .env → avisa e diz onde pôr ·
+   · chave errada (401) → avisa 
+   · sem internet (sem resposta) → "sem conexão" 
+   · API com erro (5xx) → avisa, com o código 
+   · não existe → "não encontrado" 
+   · campo "N/A" → "não informado".
    O formato da resposta não é conferido: aceito no kit, anotado no Vazou.
+    Caso	          Status	Corpo
+    achou	          200	    os dados + "Response":"True"
+    chave errada	  401	    "Response":"False", "Error":"Invalid API key!"
+    filme não existe  200	    "Response":"False", "Error":"Movie not found!"
+
 4. Ordem (um commit por peça que funciona):
    Rodar: setup → config → curl → chamada crua imprimindo o JSON (1º marco)
    Proteger: o tipo da resposta → validação da entrada → os erros da linha 3
