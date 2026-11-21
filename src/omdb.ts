@@ -1,12 +1,32 @@
 import { loadApiKey } from "./config.js"
 
+// ← novo: o contrato com o OMDb, como o curl mostrou. Só os campos que o kit usa.
+type OmdbSucesso = {
+  Response: "True";
+  Title: string;
+  Year: string;        // "1999": vem como texto
+  Runtime: string;
+  Genre: string;       // "Action, Sci-Fi": UM texto, não uma lista
+  Director: string;
+  Actors: string;
+  Plot: string;
+  imdbRating: string;  // "8.7", ou "N/A"
+};
 
-async function fetchOmdbAPI(title: string){
+type OmdbErro = {
+  Response: "False";
+  Error: string;
+};
+
+type OmdbResposta = OmdbSucesso | OmdbErro;
+
+
+async function fetchOmdbAPI(title: string):Promise<OmdbSucesso>{
     const apiKey = loadApiKey();
     const params = new URLSearchParams({apikey:apiKey, t:title,})
 
     const url = `https://www.omdbapi.com/?${params}`;
-    let response;
+    let response: Response;
     //1. Verifica se a resposta veio
     try {
         response = await fetch(url);
@@ -21,7 +41,7 @@ async function fetchOmdbAPI(title: string){
         throw new Error (`A API da OMDB está com erro. status: ${response.status} `)
     }
     // 3 le a resposta como JSON 
-    const result = await response.json() ;
+    const result: OmdbResposta = await response.json() ;
     // 4 verifica caso o response seja false 
     if (result.Response === "False"){
         if ( result.Error == "Movie not found!"){
