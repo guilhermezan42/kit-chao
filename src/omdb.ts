@@ -1,14 +1,41 @@
 import { loadApiKey } from "./config.js"
 
+
 async function fetchOmdbAPI(title: string){
     const apiKey = loadApiKey();
     const params = new URLSearchParams({apikey:apiKey, t:title,})
 
     const url = `https://www.omdbapi.com/?${params}`;
-
-    const response = await fetch(url);
+    let response;
+    //1. Verifica se a resposta veio
+    try {
+        response = await fetch(url);
+    } catch (error) {
+        throw new Error("Sem conexão: não consegui falar com o OMDb. Confira a internet e tente de novo.");
+    }
+    //2. Verifica se a resposta foi ok (2xx) e trata os erros 
+    if (response.status  === 401) { // caso 401 api inválida
+        throw new Error ("Chave da API inválida: confira a OMDB_API_KEY no .env")
+    }
+    if (!response.ok) {
+        throw new Error (`A API da OMDB está com erro. status: ${response.status} `)
+    }
+    // 3 le a resposta como JSON 
     const result = await response.json() ;
-    return result;
+    // 4 verifica caso o response seja false 
+    if (result.Response === "False"){
+        if ( result.Error == "Movie not found!"){
+            throw new Error(`Título do filme não encontrado: ${title}`)
+        }
+
+        throw new Error(`O OMDb respondeu com este erro: ${result.Error}`);
+    }
+    // retorna os dados do filme quando response é True
+    return result
+
+    
+
+
 }
 
 
